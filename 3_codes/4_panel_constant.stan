@@ -15,6 +15,11 @@ data {
   real Slo_g[I];                   // global slope
   int<lower=0, upper=1> Crisis[I]; // crisis dummy
   int<lower=1, upper=C> CID[I];    // country index of each sample
+  real b_i_pri;                    // prior mean of the intercept
+  real b_cd_pri;                   // prior mean of the b_cd
+  real b_cg_pri;                   // prior mean of the b_cg
+  real b_sd_pri;                   // prior mean of the b_sd
+  real b_sg_pri;                   // prior mean of the b_sg
 }
 
 // parameters accepted by the model
@@ -43,13 +48,21 @@ transformed  parameters {
 
 // model to be estimated
 model {
+  // likelihood block
   for (c in 1:C) {
-    b_cd[c] ~ normal(mu_cd, s_cd);
-    b_cg[c] ~ normal(mu_cg, s_cg);
-    b_sd[c] ~ normal(mu_sd, s_sd);
-    b_sg[c] ~ normal(mu_sg, s_sg);
+    b_cd[c] ~ normal(mu_cd, s_cd); // credit domestic
+    b_cg[c] ~ normal(mu_cg, s_cg); // credit global
+    b_sd[c] ~ normal(mu_sd, s_sd); // slope domestic
+    b_sg[c] ~ normal(mu_sg, s_sg); // slope global
   }
-  for (i in 1:I)
-    Crisis[i] ~ bernoulli(q[i]);
+  for (i in 1:I) {
+    Crisis[i] ~ bernoulli(q[i]); // logistic regression
+  }
+  // priors block
+  b_i   ~ normal(b_i_pri,  0.5);
+  mu_cd ~ normal(b_cd_pri, 0.5);
+  mu_cg ~ normal(b_cg_pri, 0.5);
+  mu_sd ~ normal(b_sd_pri, 0.5);
+  mu_sg ~ normal(b_sg_pri, 0.5);
 }
 
