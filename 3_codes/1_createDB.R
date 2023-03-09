@@ -96,6 +96,8 @@
     mutate(lev.dom     = lev     - lag(lev,     n = 2), # bank leverage
            noncore.dom = noncore - lag(noncore, n = 2)  # bank noncore funding ratio
     ) %>% 
+    # rename short term interest rates
+    rename(stir.dom = stir) %>% 
     # create a dummy to exclude the crisis year and four subsequent years
     mutate(crisis.ex = if_else(
       crisisJST == 1 | 
